@@ -2,82 +2,43 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ThreadRequest;
 use App\Thread;
-use Illuminate\Http\Request;
 
 class ThreadController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+        $threads = Thread::orderBy('updated_at', 'desc')->paginate();
+        return response()->json($threads);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function store(ThreadRequest $request)
     {
-        //
+        $thread = $this->saveThread($request, new Thread());
+        return response()->json(['created' => 'success', 'data' => $thread], 201);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Thread  $thread
-     * @return \Illuminate\Http\Response
-     */
     public function show(Thread $thread)
     {
-        //
+        return view('threads.show', compact('thread'));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Thread  $thread
-     * @return \Illuminate\Http\Response
-     */
+    public function update(ThreadRequest $request, Thread $thread)
+    {
+        $this->authorize('update', $thread);
+        $thread = $this->saveThread($request, $thread);
+        return redirect('/threads/' . $thread->id);
+    }
+    private function saveThread(ThreadRequest $request, Thread $thread)
+    {
+        $thread->title = $request->input('title');
+        $thread->body= $request->input('body');
+        $thread->user_id = \Auth::user()->id;
+        $thread->save();
+        return $thread;
+    }
     public function edit(Thread $thread)
     {
-        //
+        return view('threads.edit', compact('thread'));
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Thread  $thread
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Thread $thread)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Thread  $thread
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Thread $thread)
     {
         //

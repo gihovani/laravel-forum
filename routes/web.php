@@ -15,12 +15,17 @@ Route::get('/', function () {
     return view('threads.index');
 });
 
-Route::get('/threads/{id}', function ($id) {
-    $result = \App\Thread::findOrFail($id);
-    return view('threads.view', compact('result'));
-});
+Route::get('/threads/{thread}', 'ThreadController@show')->name('threads.show');
 
 Route::get('/locale/{locale}', function ($locale) {
     session(['locale' => $locale]);
     return back();
 });
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::resource('threads', 'ThreadController', ['except' => ['create']]);
+});
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
