@@ -11,7 +11,8 @@ window.Popper = require('popper.js').default;
 try {
     window.$ = window.jQuery = require('jquery');
 
-    require('bootstrap');
+    require('materialize-css/dist/js/materialize');
+    require('./parallax-header.js');
 } catch (e) {}
 
 /**
