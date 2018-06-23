@@ -13,5 +13,20 @@
     "Title": "Título",
     "Body": "Corpo",
     "Edit": "Editar",
-    "Back": "Voltar"
+    "Back": "Voltar",
+    "Sign Up With Facebook": "Entrar Usando Facebook",
+    "Reset Password": "Recuperar Senha",
+    "Send Password Reset Link": "Enviar Link p/ Recuperar Senha",
+    "Profile": "Minha Conta",
+    "Name": "Nome",
+    "Password": "Senha",
+    "Register": "Registrar",
+    "Confirm Password": "Confirmar Senha",
+    "E-Mail Address": "Endereço de E-mail",
+    "Remember Me": "Manter Conectado",
+    "Forgot Your Password?": "Esqueçeu Sua Senha?",
+    "Highlight": "Destacar",
+    "Pin": "Fixar",
+    "Close": "Fechar",
+    "Photo": "Foto"
 }

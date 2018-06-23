@@ -13,11 +13,13 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="thread in threads_response.data">
+                <tr v-for="thread in threads_response.data" :class="{'lime ligthen-4': thread.fixed}">
                     <td>{{thread.id}}</td>
                     <td>{{thread.title}}</td>
-                    <td>3</td>
+                    <td>{{thread.replies_count}}</td>
                     <td><a :href="'/threads/' + thread.id">{{open}}</a></td>
+                    <td><a :href="'/threads/' + thread.id + '/pin'" v-if="logged.role === 'admin'">{{pin}}</a></td>
+                    <td><a :href="'/threads/' + thread.id + '/close'" v-if="logged.role === 'admin' && !thread.closed">{{close}}</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -29,7 +31,8 @@
                     <input type="text" :placeholder="threadTitle" v-model="threads_to_save.title">
                 </div>
                 <div class="input-field">
-                    <textarea class="materialize-textarea" rows="10" :placeholder="threadBody" v-model="threads_to_save.body"></textarea>
+                    <textarea class="materialize-textarea" rows="10" :placeholder="threadBody"
+                              v-model="threads_to_save.body"></textarea>
                 </div>
                 <button type="submit" class="btn red accent-2">{{send}}</button>
             </form>
@@ -48,11 +51,13 @@
             'newThread',
             'threadTitle',
             'threadBody',
-            'send'
+            'send',
+            'pin',
+            'close'
         ],
         methods: {
             save() {
-                window.axios.post('/threads', this.threads_to_save).then( () => {
+                window.axios.post('/threads', this.threads_to_save).then(() => {
                     this.getThreads();
                 });
             },
@@ -64,6 +69,7 @@
         },
         data() {
             return {
+                logged: window.user,
                 threads_response: [],
                 threads_to_save: {
                     title: '',
@@ -73,6 +79,11 @@
         },
         mounted() {
             this.getThreads();
+            Echo.channel('new.thread').listen('NewThread', (e) => {
+                if (e.thread) {
+                    this.threads_response.data.splice(0, 0, e.thread);
+                }
+            });
         }
     }
 </script>

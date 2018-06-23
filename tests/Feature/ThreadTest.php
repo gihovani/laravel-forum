@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\ThreadResource;
 use App\Thread;
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
@@ -25,21 +26,31 @@ class ThreadTest extends TestCase
 
     public function testThreads()
     {
+        $user = factory(User::class)->create();
         $this->seed(\ThreadsTableSeeder::class);
-        $response = $this->get('/threads/1');
+        $response = $this
+            ->actingAs($user)
+            ->get('/threads/1');
         $response->assertStatus(200);
 
-        $response = $this->get('/threads/2');
+        $response = $this
+            ->actingAs($user)
+            ->get('/threads/2');
         $response->assertStatus(200);
 
-        $response = $this->get('/threads/a');
+        $response = $this
+            ->actingAs($user)
+            ->get('/threads/a');
         $response->assertStatus(404);
     }
 
     public function testThreadView()
     {
+        $user = factory(User::class)->create();
         $thread = factory(Thread::class)->create();
-        $response = $this->get('/threads/' . $thread->id);
+        $response = $this
+            ->actingAs($user)
+            ->get('/threads/' . $thread->id);
         $response->assertSee($thread->title);
         $response->assertSee($thread->body);
     }
@@ -47,13 +58,14 @@ class ThreadTest extends TestCase
     public function testActionIndexOnController()
     {
         $user = factory(User::class)->create();
-        $this->seed(\ThreadsTableSeeder::class);
-        $threads = Thread::orderBy('updated_at', 'desc')->paginate();
+        factory(Thread::class, 2)->create();
+        $threads = Thread::orderBy('fixed', 'desc')
+            ->orderBy('updated_at', 'desc')->paginate();
         $response = $this
             ->actingAs($user)
             ->json('GET', '/threads');
         $response->assertStatus(200)
-            ->assertJsonFragment([$threads->toArray()['data']]);
+            ->assertJsonFragment([$threads->toArray()]);
     }
 
     public function testActionStoreOnController()
@@ -65,9 +77,8 @@ class ThreadTest extends TestCase
                 'title' => 'meu primeiro tópico',
                 'body' => 'Este é um exemplo de tópico!'
             ]);
-        $thread = Thread::find(1);
         $response->assertStatus(201)
-            ->assertJson(['created' => 'success', 'data' => $thread->toArray()]);
+            ->assertJsonFragment(['created' => 'success']);
     }
     public function testActionUpdateOnController()
     {

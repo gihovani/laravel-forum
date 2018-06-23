@@ -2,84 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewReply;
+use App\Http\Requests\ReplyRequest;
+use App\Http\Resources\ReplyResource;
 use App\Reply;
-use Illuminate\Http\Request;
+use App\Thread;
 
 class ReplyController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function store(ReplyRequest $request, Thread $thread)
     {
-        //
-    }
+        $reply = new Reply();
+        $reply->body= $request->input('body');
+        $reply->user_id = \Auth::user()->id;
+        $reply->thread_id = $thread->id;
+        $this->authorize('isOpen', $reply);
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $reply->save();
+        broadcast(new NewReply($reply));
+        return response()->json(['created' => 'success', 'data' => new ReplyResource($reply)], 201);
     }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function highlight(Reply $reply)
     {
-        //
+        $this->authorize('isAdmin', $reply);
+        Reply::where('thread_id', $reply->thread_id)->update(['highlighted' => false]);
+        $reply->highlighted = true;
+        $reply->save();
+        return redirect()->route('threads.show', $reply->thread_id);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Reply $reply)
+    public function show(Thread $thread)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Reply $reply)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Reply $reply)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Reply  $reply
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Reply $reply)
-    {
-        //
+        return ReplyResource::collection($thread->replies);
     }
 }
