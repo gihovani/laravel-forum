@@ -20,11 +20,12 @@ class ReplyTest extends TestCase
         $user = factory(User::class)->create();
         $this->seed(\RepliesTableSeeder::class);
         $replies = Reply::where('thread_id', 2)->get();
-//        $replies = ReplyResource::collection($replies);
+        $replies = ReplyResource::collection($replies);
+
         $this->actingAs($user)
             ->json('GET', '/replies/2')
             ->assertStatus(200)
-            ->assertJsonFragment([$replies->toArray()]);
+            ->assertJsonFragment($replies->resolve()[0]);
     }
 
     public function testActionStoreOnController()

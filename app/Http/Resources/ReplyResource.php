@@ -14,7 +14,7 @@ class ReplyResource extends JsonResource
             'id' => intval($this->id),
             'thread_id' => intval($this->thread_id),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
-            'user' => $this->user,
+            'user' => new UserResource($this->user),
             'user_id' => intval($this->user_id),
             'highlighted' => (bool) $this->highlighted
         ];
