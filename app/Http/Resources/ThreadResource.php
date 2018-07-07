@@ -14,7 +14,7 @@ class ThreadResource extends JsonResource
             'created_at' => $this->created_at->format('Y-m-d H:i:s'),
             'id' => intval($this->id),
             'updated_at' => $this->updated_at->format('Y-m-d H:i:s'),
-            'user' => $this->user,
+            'user' => new UserResource($this->user),
             'user_id' => intval($this->user_id),
             'replies_count' => intval($this->replies_count),
             'fixed' => (bool) $this->fixed,

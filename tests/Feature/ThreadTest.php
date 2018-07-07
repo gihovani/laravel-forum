@@ -60,12 +60,15 @@ class ThreadTest extends TestCase
         $user = factory(User::class)->create();
         factory(Thread::class, 2)->create();
         $threads = Thread::orderBy('fixed', 'desc')
-            ->orderBy('updated_at', 'desc')->paginate();
+            ->orderBy('updated_at', 'desc')
+            ->paginate(10);
+        $threads = ThreadResource::collection($threads);
+
         $response = $this
             ->actingAs($user)
             ->json('GET', '/threads');
         $response->assertStatus(200)
-            ->assertJsonFragment([$threads->toArray()]);
+            ->assertJsonFragment($threads->resolve()[0]);
     }
 
     public function testActionStoreOnController()
@@ -80,6 +83,7 @@ class ThreadTest extends TestCase
         $response->assertStatus(201)
             ->assertJsonFragment(['created' => 'success']);
     }
+
     public function testActionUpdateOnController()
     {
         $user = factory(User::class)->create();
